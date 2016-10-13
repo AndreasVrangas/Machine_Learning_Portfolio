@@ -1,0 +1,59 @@
+##Load Libraries
+library(randomForest)
+library(doSNOW)
+
+##RandomForests!!!
+features <- Censors[,c("Location", "Type", "Place")]
+#Train attributes
+train.1 <- Censors[, features]
+#Targets!
+label<-Censors[,c("Act.Labels")]
+
+#For classification, convert target as factor.
+label<-as.factor(label)
+
+#CROSS VALIDATION:10-fold cross validation repeated 10 times.
+train_control <- trainControl(method = "repeatedcv",number=10,repeats = 10)
+set.seed(1234)
+model.random.forest.1 <- randomForest (x=features,y=label,trControl = train_control,method="rf",ntree=1000, type=classification)
+model.random.forest.1
+varImpPlot(model.random.forest.1)
+
+#Add "hours" attribute
+timefix<-str_split(Censors$time,":")
+timefix[1]
+hours<-sapply(timefix,"[" ,1)
+
+Censors$hours<- hours
+features <- Censors[,c("Location","Type","Place","hours")]
+train_control <- trainControl(method = "repeatedcv",number=10,repeats = 10)
+set.seed (1234)
+model.random.forest.2 <- randomForest (x=features,y=label,trControl = train_control,method="rf",ntree=1000,type=classification)
+model.random.forest.2
+varImpPlot(model.random.forest.2)
+
+##Add "end.hours" attribute
+end.timefix <- str_split(Censors$time.1,":")
+end.hours <- sapply(end.timefix,"[",1)
+Censors$end.hours<- end.hours
+
+features <- Censors[,c("Location","Type","Place","hours","end.hours")]
+train_control <- trainControl(method = "repeatedcv",number=10,repeats = 10)
+set.seed (1234)
+
+model.random.forest.3 <- randomForest (x=features,y=label,trControl = train_control,method="rf",ntree=1000,type=classification)
+model.random.forest.3
+
+varImpPlot(model.random.forest.3)
+
+##Let's check the duration!
+Censors$Duration<-Censors$St.Time-Censors$End.Time
+
+features <- Censors[,c("Location","Type","Place","hours","end.hours","Duration")]
+train_control <- trainControl(method = "repeatedcv",number=10,repeats = 10)
+set.seed (1234)
+
+model.random.forest.4 <- randomForest (x=features,y=label,trControl = train_control,method="rf",ntree=1000,type=classification)
+model.random.forest.4
+
+varImpPlot(model.random.forest.4)
