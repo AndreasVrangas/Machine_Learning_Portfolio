@@ -1,0 +1,130 @@
+##Load Files
+Activities<-read.table("OrdonezA_ADLs.txt",header=TRUE,fill=TRUE)
+Censors<-read.table("OrdonezA_sensors.txt",header=TRUE,fill=TRUE)
+
+library(stringr)
+library(chron)
+
+##Date Format
+Censors$Start <- as.Date(Censors$Start)
+Censors$End <- as.Date(Censors$End)
+Activities$Start<-as.Date(Activities$Start)
+Activities$End<-as.Date(Activities$End)
+
+#Make time attributes as characters so that they will turn into chron objects later.
+Censors$time <- as.character(Censors$time)
+Censors$time.1 <- as.character(Censors$time.1)
+Activities$time <- as.character(Activities$time)
+Activities$time.1 <-as.character(Activities$time.1) 
+
+Censors$St.Time <- as.chron(Censors$Start, Censors$time, format= c(dates ="y/m/d",times= "h:m:s"))
+Censor$End.Time <- as.chron(Censors$End, Censors$time.1, format= c(dates ="y/m/d",times= "h:m:s"))
+Activities$St.Time <- as.chron(Activities$Start, Activities$time, format= c(dates ="y/m/d",times= "h:m:s"))
+Activities$End.Time <-as.chron(Activities$End, Activities$time.1, format= c(dates ="y/m/d",times= "h:m:s")) 
+
+##Labels for Place, Location, Type
+Censors$Label.Location <- 0
+Censors$Label.Location <- ifelse(Censors$Location=="Bed",1,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Cabinet",2,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Basin",3,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Toilet",4,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Shower",5,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Shower",5,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Fridge",6,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Cupboard",7,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Toaster",8,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Cooktop",9,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Microwave",10,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Seat",11,Censors$Label.Location[])
+Censors$Label.Location <- ifelse(Censors$Location=="Maindoor",12,Censors$Label.Location[])
+
+
+Censors$Label.Type <- 0
+Censors$Label.Type <- ifelse(Censors$Type=="Pressure",1,Censors$Label.Type[])
+Censors$Label.Type <- ifelse(Censors$Type=="Magnetic",2,Censors$Label.Type[])
+Censors$Label.Type <- ifelse(Censors$Type=="PIR",3,Censors$Label.Type[])
+Censors$Label.Type <- ifelse(Censors$Type=="Flush",4,Censors$Label.Type[])
+Censors$Label.Type <- ifelse(Censors$Type=="Electric",5,Censors$Label.Type[])
+
+
+
+Censors$Label.Place<- 0
+Censors$Label.Place <-ifelse(Censors$Place=="Bedroom",1,Censors$Label.Place[])
+Censors$Label.Place <-ifelse(Censors$Place=="Bathroom",2,Censors$Label.Place[])
+Censors$Label.Place <-ifelse(Censors$Place=="Kitchen",3,Censors$Label.Place[])
+Censors$Label.Place <-ifelse(Censors$Place=="Living",4,Censors$Label.Place[])
+Censors$Label.Place <-ifelse(Censors$Place=="Entrance",5,Censors$Label.Place[])
+
+#Activity Labels
+Activities$Label.Activity <-0
+Activities$Label.Activity <- ifelse(Activities$Activity=="Sleeping",1,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Toileting",2,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Showering",3,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Breakfast",4,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Grooming",5,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Spare_Time/TV",6,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Leaving",7,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Lunch",8,Activities$Label.Activity[])
+Activities$Label.Activity <- ifelse(Activities$Activity=="Snack",9,Activities$Label.Activity[])
+
+Censors$Act.Labels<-0
+Censors$Activity<-'null'
+Activities$Activity<-as.character(Activities$Activity)
+
+##Remove dataset mistakes (End Time<Start Time)
+n=2
+for (n in 2:nrow(Activities)-1) {
+  Activities$bugs[n-1] <- (Activities$St.Time[n] > Activities$End.Time[n-1])
+  
+}
+
+Activities <-subset(Activities,bugs!="FALSE")
+
+#Implementation of the time criterion discussed in the Dataset Description
+
+j=1
+
+for (i in 1:nrow(Censors)) {
+  
+  if (Censors$St.Time[i] >= Activities$St.Time[j] & Censors$St.Time[i] <= Activities$End.Time[j]) {
+    Censors$Act.Labels[i] <- Activities$Label.Activity[j]
+    Censors$Activity[i] <- Activities$Activity[j]      
+    
+    if (j == nrow(Activities)) {
+      
+      j=j
+      
+    } else {
+      j=j+1
+    }
+    
+  }else if (Censors$End.Time[i] >= Activities$St.Time[j] & Censors$End.Time[i] <= Activities$End.Time[j]) {
+    Censors$Act.Labels[i] <- Activities$Label.Activity[j]
+    Censors$Activity[i] <- Activities$Activity[j]      
+    
+    if (j == nrow(Activities)){
+      
+      
+    }else {
+      j=j+1
+    }
+    
+  } else if (Activities$Label.Activity[j-1] == 1 | Activities$Label.Activity[j-1] == 5 | 
+             Activities$Label.Activity[j-1] == 6 | Activities$Label.Activity[j-1] == 7 | 
+             Activities$Label.Activity[j-1] == 9 | Activities$Label.Activity[j-1] ==3 ) {
+    Censors$Act.Labels[i]<- Activities$Label.Activity[j]
+    Censors$Activity[i]<-Activities$Activity[j]      
+    
+    if (j == nrow(Activities)){
+      j=j
+      
+    }else{
+      j=j+1
+    }
+    
+  } else { Censors$Act.Labels[i]<- Activities$Label.Activity[j-1] 
+  Censors$Activity[i]<-Activities$Activity[j-1]      
+  }
+}
+
+
