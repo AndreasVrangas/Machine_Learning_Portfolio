@@ -104,6 +104,7 @@ for (i in 1:nrow(Censors)) {
     
     if (j == nrow(Activities)){
       
+      j=j
       
     }else {
       j=j+1
