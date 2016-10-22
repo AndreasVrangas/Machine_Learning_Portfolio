@@ -18,7 +18,7 @@ Activities$time <- as.character(Activities$time)
 Activities$time.1 <-as.character(Activities$time.1) 
 
 Censors$St.Time <- as.chron(Censors$Start, Censors$time, format= c(dates ="y/m/d",times= "h:m:s"))
-Censor$End.Time <- as.chron(Censors$End, Censors$time.1, format= c(dates ="y/m/d",times= "h:m:s"))
+Censors$End.Time <- as.chron(Censors$End, Censors$time.1, format= c(dates ="y/m/d",times= "h:m:s"))
 Activities$St.Time <- as.chron(Activities$Start, Activities$time, format= c(dates ="y/m/d",times= "h:m:s"))
 Activities$End.Time <-as.chron(Activities$End, Activities$time.1, format= c(dates ="y/m/d",times= "h:m:s")) 
 
