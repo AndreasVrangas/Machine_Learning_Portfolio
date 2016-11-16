@@ -1,0 +1,60 @@
+import pandas as pd
+import numpy as np
+
+##Load the Dataset with "header" set at -1 because we want to add a column
+wines_df = pd.read_csv('wine.csv',header=-1)
+
+##Rename the columns
+wines_df= wines_df.rename(columns={0:'Class',1: 'Alcohol',2:'Malic_acid',3:'Ash',
+4:'Alc_ash',5:'Magnesium',6:'Total_phenols',
+7:'Flavanoids',8:'Nonflav_phenols',
+9:'Proanthocyanins',10:'Color_intensity',
+11:'Hue',12:'OD280_OD315',13:'Proline'})
+
+"Splitting the dataset into 80% train set and 20% test set"
+train=wines_df.sample(frac=0.8,random_state=200)
+test=wines_df.drop(train.index)
+
+"Hold the correct values someplace and set the class column to zero"
+test_class=[]                       
+test_class=test['Class']
+rcp=test_class.value_counts() 
+print(rcp)
+
+test.drop(['Class'],axis=1,inplace=True)
+test['Class']=0
+
+from sklearn import tree
+
+##Select the features and train the models. Then predict!
+
+target=train['Class'].values
+train_features=train[['Color_intensity','Proline','Nonflav_phenols']].values
+test_features=test[['Color_intensity','Proline','Nonflav_phenols']].values
+
+
+X_train,X_test,y_train,y_test=cross_validation.train_test_split(train_features,target,test_size=0.2)
+
+my_tree_one = tree.DecisionTreeClassifier(max_depth=90,min_samples_split=10,random_state=10)
+my_tree_one = my_tree_one.fit(train_features,target)
+
+my_prediction_1st_case = my_tree_one.predict(test_features)
+print( my_prediction_1st_case.Class.value_counts())
+
+
+
+
+train_features_2=train[['Total_phenols','Hue','Flavanoids']].values
+test_features_2=test[['Total_phenols','Hue','Flavanoids']].values
+X_train,X_test,y_train,y_test=cross_validation.train_test_split(train_features_2,target,test_size=0.2)
+my_tree_two = tree.DecisionTreeClassifier(max_depth=90,min_samples_split=10,random_state=10)
+my_tree_two = my_tree_two.fit(train_features_2,target)
+
+my_prediction_2nd_case = my_tree_two.predict(test_features_2)
+print(my_prediction_2nd_case.Class.value_counts())
+
+
+##Print the variable importance!
+print (my_tree_one.feature_importances_)
+print(my_tree_two.feature_importances_)
+
