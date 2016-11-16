@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-##Load the Dataset with "header" set at -1 because we want to add a column
+##Load the Dataset with "header" set at -1 because we want to add a row
 wines_df = pd.read_csv('wine.csv',header=-1)
 
 ##Rename the columns
