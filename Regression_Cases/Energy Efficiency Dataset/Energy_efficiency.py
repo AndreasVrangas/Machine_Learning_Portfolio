@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 'Import Dataset'
 names=['Relative_Compactness','Surface_Area','Wall_Area','Roof_Area','Overall_Height','Orientation','Glazing_Area','Glazing_Area_Distribution','Heating_Load','Cooling_Load']
-df = pd.read_excel('C:/Users/Riko/OneDrive/Portfolio stuff/3.Energy/ENB2012_data.xlsx',names=names)
+df = pd.read_excel('ENB2012_data.xlsx',names=names)
 
 
 
@@ -30,7 +30,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
 
-#Function to fit, predict and return evaluation metrics. It also returns fetarue importance plots for the ensembel method
+#Function to fit, predict and return evaluation metrics. It also returns fetarue importance plots for the ensemble method
 def pred_ensemble(X,Y,model):
     X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size=0.2)
     model.fit(X_train,y_train)
